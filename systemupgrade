@@ -1,0 +1,69 @@
+#!/usr/bin/python
+'''
+systemupgrade.py
+'''
+import sys
+from datetime import datetime
+from datetime import timedelta
+import json
+import click
+
+from utils import prints
+from utils import commands
+from utils import paths
+from utils import utils
+from classes.systemupgradeconfigs import SystemUpgradeConfigs
+
+
+
+@click.command()
+@click.option('-os', '--only-sync', 'is_only_sync', type=bool, default=False, show_default=True, is_flag=True, help='Only sync mirrors')
+@click.option('-or', '--only-rank', 'is_only_rank', type=bool, default=False, show_default=True, is_flag=True, help='Only rank mirrors')
+@click.option('-ns', '--no-sync', 'no_sync', type=bool, default=False, show_default=True, is_flag=True, help='Disable sync mirrors')
+@click.option('-nr', '--no-rank', 'no_rank', type=bool, default=False, show_default=True, is_flag=True, help='Disable rank mirrors')
+def _main(is_only_sync, is_only_rank, no_sync, no_rank):
+
+    configs_path = paths.resolve_path(paths.folder_path(__file__), 'configs.json')
+
+    if paths.is_folder(configs_path):
+        prints.red(f"`{configs_path}` is a folder")
+        sys.exit(1)
+
+    if not paths.is_entry(configs_path):
+        with open(configs_path, 'w', encoding='utf-8') as file:
+            file.write(json.dumps(SystemUpgradeConfigs.prompt_create().to_dict(), indent=2))
+
+    with open(configs_path, 'r', encoding='utf-8') as file:
+        system_upgrade_configs = SystemUpgradeConfigs.from_dict(json.loads(file.read()))
+
+    is_sync = (not no_sync) and (datetime.utcnow() - system_upgrade_configs.update_datetime > timedelta(days=7))
+    is_rank = not no_rank
+
+    if is_only_sync or is_sync:
+        utils.sync_mirrors(system_upgrade_configs)
+        system_upgrade_configs.update_datetime = datetime.utcnow()
+        with open(configs_path, 'w', encoding='utf-8') as file:
+            file.write(json.dumps(system_upgrade_configs.to_dict(), indent=2))
+
+    if is_only_sync:
+        sys.exit(0)
+
+    if is_only_rank or is_rank:
+        commands.run('sudo rankmirrors --parallel --verbose /etc/pacman.d/mirrorlist.mirrorssync > /etc/pacman.d/mirrorlist', True)
+
+    if is_only_rank:
+        sys.exit(0)
+
+    commands.run(f"sudo pacman -Sy{('y' if is_sync else '')}u", True)
+    commands.run('yay -Sua', True)
+    commands.run('sudo paccache -ruk0', True)
+    commands.run('sudo paccache -rk2', True)
+    commands.run('fwupdmgr refresh --force', True)
+    commands.run('fwupdmgr get-updates', True)
+    commands.run('fwupdmgr update', True)
+    commands.run('sudo find-name pacnew /', True)
+
+
+
+if __name__ == '__main__':
+    _main()
