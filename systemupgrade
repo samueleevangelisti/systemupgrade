@@ -46,6 +46,7 @@ def _main(is_only_sync, is_only_rank, no_sync, no_rank):
             file.write(json.dumps(system_upgrade_configs.to_dict(), indent=2))
 
     if is_only_sync:
+        commands.run('sudo pacman -Syy', True)
         sys.exit(0)
 
     if is_only_rank or is_rank:
@@ -61,7 +62,7 @@ def _main(is_only_sync, is_only_rank, no_sync, no_rank):
     commands.run('fwupdmgr refresh --force', True)
     commands.run('fwupdmgr get-updates', True)
     commands.run('fwupdmgr update', True)
-    commands.run('sudo find-name pacnew /', True)
+    commands.run('sudo find / -iname "*pacnew*"', True)
 
 
 
