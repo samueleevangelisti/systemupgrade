@@ -38,7 +38,7 @@ def sync_mirrors(system_upgrade_configs):
         url_list += [server_str.split(' = ')[1] for server_str in response.text.split('\n') if 'Server = ' in server_str]
     response = requests.get('https://archlinux.org/mirrors/status/json', timeout=60)
     response_dict = response.json()
-    last_check_date_time = datetime.fromisoformat(response_dict['last_check'][:19])
+    last_check_date_time = datetime.fromisoformat(response_dict['last_check'])
     mirror_dict_list_error = []
     mirror_dict_list_warning = []
     mirror_url_list = []
@@ -50,16 +50,16 @@ def sync_mirrors(system_upgrade_configs):
                 is_match = True
                 if not mirror_dict['active'] or not mirror_dict['last_sync']:
                     mirror_dict_list_error.append(mirror_dict)
-                elif last_check_date_time - datetime.fromisoformat(mirror_dict['last_sync'][:19]) > timedelta(days=1):
+                elif last_check_date_time - datetime.fromisoformat(mirror_dict['last_sync']) > timedelta(days=1):
                     mirror_dict_list_warning.append(mirror_dict)
                 else:
                     mirror_url_list.append(url)
         if not is_match:
             url_list_no_info.append(url)
     for mirror_dict in mirror_dict_list_error:
-        prints.red(_TEMPLATE_LOG_MIRROR.format(url=mirror_dict['url'], last_check=last_check_date_time, active=mirror_dict['active'], last_sync=mirror_dict['last_sync'], delta=last_check_date_time - datetime.fromisoformat(mirror_dict['last_sync'][:19])))
+        prints.red(_TEMPLATE_LOG_MIRROR.format(url=mirror_dict['url'], last_check=last_check_date_time, active=mirror_dict['active'], last_sync=mirror_dict['last_sync'], delta=last_check_date_time - datetime.fromisoformat(mirror_dict['last_sync'])))
     for mirror_dict in mirror_dict_list_warning:
-        prints.yellow(_TEMPLATE_LOG_MIRROR.format(url=mirror_dict['url'], last_check=last_check_date_time, active=mirror_dict['active'], last_sync=mirror_dict['last_sync'], delta=last_check_date_time - datetime.fromisoformat(mirror_dict['last_sync'][:19])))
+        prints.yellow(_TEMPLATE_LOG_MIRROR.format(url=mirror_dict['url'], last_check=last_check_date_time, active=mirror_dict['active'], last_sync=mirror_dict['last_sync'], delta=last_check_date_time - datetime.fromisoformat(mirror_dict['last_sync'])))
     for url in url_list_no_info:
         prints.yellow(_TEMPLATE_LOG_MIRROR.format(url=url, last_check=last_check_date_time, active='unknown', last_sync='unknown', delta=''))
     print(_TEMPLATE_LOG_INFO.format(total=colors.green(len(url_list)), error=colors.red(len(mirror_dict_list_error)), warning=colors.yellow(len(mirror_dict_list_warning)), no_info=colors.yellow(len(url_list_no_info))))
@@ -76,7 +76,7 @@ def sync_mirrors(system_upgrade_configs):
         prints.red(' ✗ No usable mirrors')
         sys.exit(1)
     print(f"Used mirrors: {colors.green(len(mirror_url_list))}")
-    commands.run(f"sudo python {paths.resolve_path(paths.folder_path(__file__), '../scripts/mirrorssync.py')} '{json.dumps(mirror_url_list)}'", True)
+    commands.run(f"sudo PYTHONPATH={paths.resolve_path(paths.folder_path(__file__), '..')} python {paths.resolve_path(paths.folder_path(__file__), '../scripts/mirrorssync.py')} '{json.dumps(mirror_url_list)}'", True)
 
 
 

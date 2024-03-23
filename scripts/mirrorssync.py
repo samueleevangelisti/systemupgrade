@@ -1,15 +1,16 @@
 '''
 mirrorssync.py
 '''
-from datetime import datetime
 import json
 import click
+
+from utils import datetimes
 
 
 
 _TEMPLATE_FILE = '''\
 #
-# File generated automatically using `mirrors-sync`
+# File generated automatically using `mirrorssync.py`
 # Do not change or modify it
 # Date: {date:s}
 #
@@ -24,7 +25,7 @@ _TEMPLATE_FILE = '''\
 def _main(url_list_str):
     url_list = json.loads(url_list_str)
     with open('/etc/pacman.d/mirrorlist.mirrorssync', 'w', encoding='utf-8') as file:
-        file.write(_TEMPLATE_FILE.format(date=f"{datetime.utcnow().isoformat()[:19]}Z", server_list='\n'.join(f"Server = {url}" for url in url_list)))
+        file.write(_TEMPLATE_FILE.format(date=f"{datetimes.now().isoformat()}", server_list='\n'.join(f"Server = {url}" for url in url_list)))
 
 
 

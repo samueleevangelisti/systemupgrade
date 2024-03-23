@@ -2,6 +2,7 @@
 systemupgradeconfigs.py
 '''
 from datetime import datetime
+from datetime import timezone
 import click
 
 from utils import typechecks
@@ -28,7 +29,7 @@ class SystemUpgradeConfigs:
         '''
         pass
         '''
-        return SystemUpgradeConfigs(datetime(1970, 1, 1), click.prompt('country_list', type=list, default=[
+        return SystemUpgradeConfigs(datetime(1970, 1, 1, tzinfo=timezone.utc), click.prompt('country_list', type=list, default=[
             'IT',
             'DE'
         ], show_default=True))
@@ -49,6 +50,6 @@ class SystemUpgradeConfigs:
         pass
         '''
         return {
-            'update_datetime': self.update_datetime.isoformat()[:10],
+            'update_datetime': self.update_datetime.isoformat(),
             'country_list': self.country_list
         }

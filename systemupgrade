@@ -3,7 +3,6 @@
 systemupgrade.py
 '''
 import sys
-from datetime import datetime
 from datetime import timedelta
 import json
 import click
@@ -11,6 +10,7 @@ import click
 from utils import prints
 from utils import commands
 from utils import paths
+from utils import datetimes
 from utils import utils
 from classes.systemupgradeconfigs import SystemUpgradeConfigs
 
@@ -23,7 +23,7 @@ from classes.systemupgradeconfigs import SystemUpgradeConfigs
 @click.option('-nr', '--no-rank', 'no_rank', type=bool, default=False, show_default=True, is_flag=True, help='Disable rank mirrors')
 def _main(is_only_sync, is_only_rank, no_sync, no_rank):
 
-    configs_path = paths.resolve_path(paths.folder_path(__file__), 'configs.json')
+    configs_path = paths.resolve_path(paths.folder_path(paths.resolve_link_path(__file__)), 'configs.json')
 
     if paths.is_folder(configs_path):
         prints.red(f"`{configs_path}` is a folder")
@@ -36,12 +36,12 @@ def _main(is_only_sync, is_only_rank, no_sync, no_rank):
     with open(configs_path, 'r', encoding='utf-8') as file:
         system_upgrade_configs = SystemUpgradeConfigs.from_dict(json.loads(file.read()))
 
-    is_sync = (not no_sync) and (datetime.utcnow() - system_upgrade_configs.update_datetime > timedelta(days=7))
+    is_sync = (not no_sync) and (datetimes.now() - system_upgrade_configs.update_datetime > timedelta(days=7))
     is_rank = not no_rank
 
     if is_only_sync or is_sync:
         utils.sync_mirrors(system_upgrade_configs)
-        system_upgrade_configs.update_datetime = datetime.utcnow()
+        system_upgrade_configs.update_datetime = datetimes.today()
         with open(configs_path, 'w', encoding='utf-8') as file:
             file.write(json.dumps(system_upgrade_configs.to_dict(), indent=2))
 
@@ -50,7 +50,7 @@ def _main(is_only_sync, is_only_rank, no_sync, no_rank):
         sys.exit(0)
 
     if is_only_rank or is_rank:
-        commands.run('sudo rankmirrors --parallel --verbose /etc/pacman.d/mirrorlist.mirrorssync > /etc/pacman.d/mirrorlist', True)
+        commands.run('rankmirrors --parallel --verbose /etc/pacman.d/mirrorlist.mirrorssync | sudo tee /etc/pacman.d/mirrorlist', True)
 
     if is_only_rank:
         sys.exit(0)
