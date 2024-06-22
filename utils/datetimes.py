@@ -8,6 +8,35 @@ from datetime import timezone
 
 
 
+def create(year, month, day, hour=0, minute=0, second=0, microsecond=0):
+    '''
+    Returns a datetime in utc
+    
+    Parameters
+    ----------
+    year : int
+        Year
+    month : int
+        Month
+    day : int
+        Day
+    hour : int
+        Hour
+    minute : int
+        Minute
+    second : int
+        Second
+    microsecond : int
+        Microsecond
+    
+    Returns
+    -------
+    datetime
+    '''
+    return datetime(year, month, day, hour, minute, second, microsecond, tzinfo=timezone.utc)
+
+
+
 def now():
     '''
     Returns actual datetime in utc

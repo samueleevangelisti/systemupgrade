@@ -1,70 +1,36 @@
 #!/usr/bin/python
 '''
-systemupgrade.py
+systemupgrade
 '''
-import sys
-from datetime import timedelta
-import json
 import click
 
-from utils import prints
 from utils import commands
 from utils import paths
-from utils import datetimes
-from utils import utils
-from classes.systemupgradeconfigs import SystemUpgradeConfigs
 
 
 
 @click.command()
-@click.option('-os', '--only-sync', 'is_only_sync', type=bool, default=False, show_default=True, is_flag=True, help='Only sync mirrors')
-@click.option('-or', '--only-rank', 'is_only_rank', type=bool, default=False, show_default=True, is_flag=True, help='Only rank mirrors')
-@click.option('-ns', '--no-sync', 'no_sync', type=bool, default=False, show_default=True, is_flag=True, help='Disable sync mirrors')
-@click.option('-nr', '--no-rank', 'no_rank', type=bool, default=False, show_default=True, is_flag=True, help='Disable rank mirrors')
-def _main(is_only_sync, is_only_rank, no_sync, no_rank):
+@click.option('-nsr', '--no-sync-repo', 'no_sync_repo', type=bool, default=False, show_default=True, is_flag=True, help='Disable sync from repo.')
+@click.option('-fsr', '--force-sync-repo', 'is_force_sync_repo', type=bool, default=False, show_default=True, is_flag=True, help='Force sync from repo.')
+@click.option('-m', '--modify', 'is_modify', type=bool, default=False, show_default=True, is_flag=True, help='Modify the configurations.')
+@click.option('-osm', '--only-sync-mirrors', 'is_only_sync_mirrors', type=bool, default=False, show_default=True, is_flag=True, help='Only sync mirrors')
+@click.option('-orm', '--only-rank-mirrors', 'is_only_rank_mirrors', type=bool, default=False, show_default=True, is_flag=True, help='Only rank mirrors')
+@click.option('-nsm', '--no-sync-mirrors', 'no_sync_mirrors', type=bool, default=False, show_default=True, is_flag=True, help='Disable sync mirrors')
+@click.option('-nrm', '--no-rank-mirrors', 'no_rank_mirrors', type=bool, default=False, show_default=True, is_flag=True, help='Disable rank mirrors')
+def _main(no_sync_repo, is_force_sync_repo, is_modify, is_only_sync_mirrors, is_only_rank_mirrors, no_sync_mirrors, no_rank_mirrors):
+    '''
+    Upgrade the system and clean the packages
+    '''
+    is_sync_repo = not no_sync_repo
 
-    configs_path = paths.resolve_path(paths.folder_path(paths.resolve_link_path(__file__)), 'configs.json')
+    folder_path = paths.folder_path(paths.resolve_link_path(__file__))
 
-    if paths.is_folder(configs_path):
-        prints.red(f"`{configs_path}` is a folder")
-        sys.exit(1)
-
-    if not paths.is_entry(configs_path):
-        with open(configs_path, 'w', encoding='utf-8') as file:
-            file.write(json.dumps(SystemUpgradeConfigs.prompt_create().to_dict(), indent=2))
-
-    with open(configs_path, 'r', encoding='utf-8') as file:
-        system_upgrade_configs = SystemUpgradeConfigs.from_dict(json.loads(file.read()))
-
-    is_sync = (not no_sync) and (datetimes.now() - system_upgrade_configs.update_datetime > timedelta(days=7))
-    is_rank = not no_rank
-
-    if is_only_sync or is_sync:
-        utils.sync_mirrors(system_upgrade_configs)
-        system_upgrade_configs.update_datetime = datetimes.today()
-        with open(configs_path, 'w', encoding='utf-8') as file:
-            file.write(json.dumps(system_upgrade_configs.to_dict(), indent=2))
-
-    if is_only_sync:
-        commands.run('sudo pacman -Syy', True)
-        sys.exit(0)
-
-    if is_only_rank or is_rank:
-        commands.run('rankmirrors --parallel --verbose /etc/pacman.d/mirrorlist.mirrorssync | sudo tee /etc/pacman.d/mirrorlist', True)
-
-    if is_only_rank:
-        sys.exit(0)
-
-    commands.run(f"sudo pacman -Sy{('y' if is_sync else '')}u", True)
-    commands.run('yay -Sua', True)
-    commands.run('sudo paccache -ruk0', True)
-    commands.run('sudo paccache -rk2', True)
-    commands.run('fwupdmgr refresh --force', True)
-    commands.run('fwupdmgr get-updates', True)
-    commands.run('fwupdmgr update', True)
-    commands.run('sudo find / -iname "*pacnew*"', True)
+    if is_sync_repo:
+        commands.run(f"python {paths.resolve_path(folder_path, 'sync.py')} {is_force_sync_repo}", True)
+    commands.run(f"python {paths.resolve_path(folder_path, 'system_upgrade.py')} {is_modify} {is_only_sync_mirrors} {is_only_rank_mirrors} {no_sync_mirrors} {no_rank_mirrors}", True)
 
 
 
 if __name__ == '__main__':
+    # pylint: disable-next=no-value-for-parameter
     _main()
