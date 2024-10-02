@@ -96,6 +96,17 @@ def _retrieve_arch_mirrors(configs):
 
 
 
+def _retrieve_arch_arm_mirrors():
+    '''
+    Returns the list of mirrors to use
+    '''
+    with open('/etc/pacman.d/mirrorlist', 'r', encoding='utf-8') as file:
+        mirror_url_list = re.findall(r'\#?\ *Server\ *\=\ *([^\ ]*)\n', file.read())
+
+    return mirror_url_list
+
+
+
 def sync_mirrors(configs):
     '''
     Saves the mirrors using the ad hoc script
@@ -110,9 +121,9 @@ def sync_mirrors(configs):
         case 'arch':
             mirror_url_list = _retrieve_arch_mirrors(configs)
         case 'arch_arm':
-            pass
+            mirror_url_list = _retrieve_arch_arm_mirrors()
         case 'arch_32':
-            pass
+            raise Exception('arch_32 not supported')
 
     print(f"Used mirrors: {len(mirror_url_list)}")
 
