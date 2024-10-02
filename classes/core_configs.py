@@ -4,6 +4,7 @@ core_configs.py
 from datetime import datetime
 
 from utils import typechecks
+from utils import datetimes
 
 
 
@@ -44,7 +45,7 @@ class CoreConfigs:
         -------
         CoreConfigs
         '''
-        return CoreConfigs(datetime.fromisoformat(core_configs_dict['sync_datetime']), datetime.fromisoformat(core_configs_dict['update_datetime']))
+        return CoreConfigs(datetimes.from_iso(core_configs_dict['sync_datetime']), datetimes.from_iso(core_configs_dict['update_datetime']))
 
 
 

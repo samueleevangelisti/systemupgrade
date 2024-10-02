@@ -31,9 +31,9 @@ Total mirrors: {totals:d}
 
 
 
-def sync_mirrors(configs):
+def _retrieve_arch_mirrors(configs):
     '''
-    Download and check mirror status. Then saves the result using the ad hoc script
+    Download and check mirror status
     
     Parameters
     ----------
@@ -91,6 +91,29 @@ def sync_mirrors(configs):
         sys.exit(1)
     if not error_mirror_dict_list and not warning_mirror_dict_list and not no_info_mirror_url_list:
         prints.green(' ✓ Good mirror status')
-    print(f"Used mirrors: {len(ok_mirror_url_list)}")
 
-    commands.run(f"sudo PYTHONPATH={paths.resolve_path(paths.folder_path(__file__), '..')} python {paths.resolve_path(paths.folder_path(__file__), '../scripts/mirrors_sync.py')} '{json.dumps(ok_mirror_url_list)}'", True)
+    return ok_mirror_url_list
+
+
+
+def sync_mirrors(configs):
+    '''
+    Saves the mirrors using the ad hoc script
+    
+    Parameters
+    ----------
+    configs : Configs
+        configs
+    '''
+    mirror_url_list = []
+    match configs.operative_system:
+        case 'arch':
+            mirror_url_list = _retrieve_arch_mirrors(configs)
+        case 'arch_arm':
+            pass
+        case 'arch_32':
+            pass
+
+    print(f"Used mirrors: {len(mirror_url_list)}")
+
+    commands.run(f"sudo PYTHONPATH={paths.resolve_path(paths.folder_path(__file__), '..')} python {paths.resolve_path(paths.folder_path(__file__), '../scripts/mirrors_sync.py')} '{json.dumps(mirror_url_list)}'", True)
