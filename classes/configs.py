@@ -13,11 +13,6 @@ _OPERATIVE_SYSTEM_CHOICE = Choice((
     'arch_arm',
     'arch_32',
 ))
-_OPERATIVE_SYSTEM_DEFAULT = 'arch'
-_COUNTRY_LIST_DEFAULT = [
-    'IT',
-    'DE'
-]
 
 
 
@@ -53,7 +48,10 @@ class Configs:
         -------
         Config
         '''
-        return Configs(click.prompt('operative_system', type=_OPERATIVE_SYSTEM_CHOICE, show_choices=True, default=_OPERATIVE_SYSTEM_DEFAULT, show_default=True), click.prompt('country_list', type=list, default=_COUNTRY_LIST_DEFAULT, show_default=True))
+        return Configs(click.prompt('operative_system', type=_OPERATIVE_SYSTEM_CHOICE, show_choices=True, default='arch', show_default=True), click.prompt('country_list', type=list, default=[
+            'IT',
+            'DE'
+        ], show_default=True))
 
 
 
