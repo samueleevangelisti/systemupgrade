@@ -5,3 +5,5 @@ Do not modify it
 BACKSLASH = '\\'
 NEW_LINE = '\n'
 TAB = '\t'
+CURLY_BRACKET_OPEN = '{'
+CURLY_BRACKET_CLOSE = '}'
