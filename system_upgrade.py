@@ -56,6 +56,8 @@ def _main(is_modify, is_only_sync, is_only_rank, no_sync, no_rank):
 
     if is_modify:
         configs.prompt_modify()
+        with open(configs_path, 'w', encoding='utf-8') as file:
+            file.write(json.dumps(configs.to_dict(), indent=2))
         sys.exit(0)
 
     is_sync = (datetimes.now() - core_configs.update_datetime > timedelta(days=7)) and (not no_sync)
