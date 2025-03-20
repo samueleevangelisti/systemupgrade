@@ -26,9 +26,9 @@ def _main(is_modify, is_only_sync, is_only_rank, no_sync, no_rank):
     '''
     Core command. Use easydup instead
     '''
-    core_configs_path = paths.resolve_path(paths.folder_path(paths.resolve_link_path(__file__)), 'core-configs.json')
+    core_configs_path = paths.resolve_path(paths.get_folder_path(paths.resolve_link_path(__file__)), 'core-configs.json')
     print(f"core_configs_path is `{core_configs_path}`")
-    configs_path = paths.resolve_path(paths.folder_path(paths.resolve_link_path(__file__)), 'configs.json')
+    configs_path = paths.resolve_path(paths.get_folder_path(paths.resolve_link_path(__file__)), 'configs.json')
     print(f"configs_path is `{configs_path}`")
 
     if not paths.is_entry(core_configs_path):

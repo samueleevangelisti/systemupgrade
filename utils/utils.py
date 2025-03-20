@@ -127,4 +127,4 @@ def sync_mirrors(configs):
 
     print(f"Used mirrors: {len(mirror_url_list)}")
 
-    commands.run(f"sudo PYTHONPATH={paths.resolve_path(paths.folder_path(__file__), '..')} python {paths.resolve_path(paths.folder_path(__file__), '../scripts/mirrors_sync.py')} '{json.dumps(mirror_url_list)}'", True)
+    commands.run(f"sudo PYTHONPATH={paths.resolve_path(paths.get_folder_path(__file__), '..')} python {paths.resolve_path(paths.get_folder_path(__file__), '../scripts/mirrors_sync.py')} '{json.dumps(mirror_url_list)}'", True)

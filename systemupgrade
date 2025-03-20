@@ -23,7 +23,7 @@ def _main(no_sync_repo, is_force_sync_repo, is_modify, is_only_sync_mirrors, is_
     '''
     is_sync_repo = not no_sync_repo
 
-    folder_path = paths.folder_path(paths.resolve_link_path(__file__))
+    folder_path = paths.get_folder_path(paths.resolve_link_path(__file__))
 
     if is_sync_repo:
         commands.run(f"python {paths.resolve_path(folder_path, 'sync.py')} {is_force_sync_repo}", True)
