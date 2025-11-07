@@ -79,7 +79,7 @@ def _main(is_modify, is_only_sync, is_only_rank, no_sync, no_rank):
     if is_only_rank:
         sys.exit(0)
 
-    commands.run('sudo cp /etc/mkinitcpio.conf /etc/mkinitcpio-systemupgrade-backup.conf')
+    commands.run('sudo cp /etc/mkinitcpio.conf /etc/mkinitcpio-systemupgrade-backup.conf', True)
     commands.run('sudo mkinitcpio --config /etc/mkinitcpio-systemupgrade-backup.conf --generate /boot/initramfs-systemupgrade-backup.img', True)
     commands.run(f"sudo pacman -Sy{('y' if is_sync else '')}u", True)
     commands.run('yay -Sua', True)
