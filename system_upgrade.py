@@ -79,7 +79,7 @@ def _main(is_modify, is_only_sync, is_only_rank, no_sync, no_rank):
     if is_only_rank:
         sys.exit(0)
 
-    commands.run('sudo mkinitcpio --generate /boot/initramfs-system-upgrade-backup.img', True)
+    commands.run('sudo mkinitcpio --generate /boot/initramfs-systemupgrade-backup.img', True)
     commands.run(f"sudo pacman -Sy{('y' if is_sync else '')}u", True)
     commands.run('yay -Sua', True)
     commands.run('sudo paccache -ruk0', True)
