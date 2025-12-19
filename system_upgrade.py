@@ -27,9 +27,9 @@ def _main(is_modify, is_only_sync, is_only_rank, no_sync, no_rank):
     Core command. Use easydup instead
     '''
     core_configs_path = paths.resolve_path(paths.get_folder_path(paths.resolve_link_path(__file__)), 'core-configs.json')
-    print(f"core_configs_path is `{core_configs_path}`")
+    print(f'core_configs_path is `{core_configs_path}`')
     configs_path = paths.resolve_path(paths.get_folder_path(paths.resolve_link_path(__file__)), 'configs.json')
-    print(f"configs_path is `{configs_path}`")
+    print(f'configs_path is `{configs_path}`')
 
     if not paths.is_entry(core_configs_path):
         init_datetime = datetimes.create(1970, 1, 1)
@@ -37,7 +37,7 @@ def _main(is_modify, is_only_sync, is_only_rank, no_sync, no_rank):
             file.write(json.dumps(CoreConfigs(init_datetime, init_datetime).to_dict(), indent=2))
 
     if paths.is_folder(core_configs_path):
-        prints.red(f"`{core_configs_path}` is a folder")
+        prints.red(f'`{core_configs_path}` is a folder')
         sys.exit(1)
 
     with open(core_configs_path, 'r', encoding='utf-8') as file:
@@ -48,7 +48,7 @@ def _main(is_modify, is_only_sync, is_only_rank, no_sync, no_rank):
             file.write(json.dumps(Configs.prompt_create().to_dict(), indent=2))
 
     if paths.is_folder(configs_path):
-        prints.red(f"`{configs_path}` is a folder")
+        prints.red(f'`{configs_path}` is a folder')
         sys.exit(1)
 
     with open(configs_path, 'r', encoding='utf-8') as file:
@@ -79,9 +79,11 @@ def _main(is_modify, is_only_sync, is_only_rank, no_sync, no_rank):
     if is_only_rank:
         sys.exit(0)
 
+    commands.run('sudo cp /boot/vmlinuz-linux /boot/vmlinuz-linux-systemupgrade-backup', True)
+    commands.run('sudo cp /boot/amd-ucode.img /boot/amd-ucode-systemupgrade-backup.img', True)
     commands.run('sudo cp /etc/mkinitcpio.conf /etc/mkinitcpio-systemupgrade-backup.conf', True)
-    commands.run('sudo mkinitcpio --config /etc/mkinitcpio-systemupgrade-backup.conf --generate /boot/initramfs-systemupgrade-backup.img', True)
-    commands.run(f"sudo pacman -Sy{('y' if is_sync else '')}u", True)
+    commands.run('sudo mkinitcpio --config /etc/mkinitcpio-systemupgrade-backup.conf --skiphooks autodetect --generate /boot/initramfs-linux-systemupgrade-backup.img', True)
+    commands.run(f'sudo pacman -Sy{('y' if is_sync else '')}u', True)
     commands.run('yay -Sua', True)
     commands.run('sudo paccache -ruk0', True)
     commands.run('sudo paccache -rk2', True)
