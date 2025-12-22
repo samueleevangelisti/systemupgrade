@@ -79,10 +79,11 @@ def _main(is_modify, is_only_sync, is_only_rank, no_sync, no_rank):
     if is_only_rank:
         sys.exit(0)
 
-    commands.run('sudo cp /boot/vmlinuz-linux /boot/vmlinuz-linux-systemupgrade-backup', True)
-    commands.run('sudo cp /boot/amd-ucode.img /boot/amd-ucode-systemupgrade-backup.img', True)
+    commands.run('sudo mkdir -p /boot-systemupgrade-backup', True)
+    commands.run('sudo cp /boot/vmlinuz-linux /boot-systemupgrade-backup', True)
+    commands.run('sudo cp /boot/amd-ucode.img /boot-systemupgrade-backup', True)
     commands.run('sudo cp /etc/mkinitcpio.conf /etc/mkinitcpio-systemupgrade-backup.conf', True)
-    commands.run('sudo mkinitcpio --config /etc/mkinitcpio-systemupgrade-backup.conf --skiphooks autodetect --generate /boot/initramfs-linux-systemupgrade-backup.img', True)
+    commands.run('sudo mkinitcpio --config /etc/mkinitcpio-systemupgrade-backup.conf --skiphooks autodetect --generate /boot-systemupgrade-backup/initramfs-linux.img', True)
     commands.run(f'sudo pacman -Sy{('y' if is_sync else '')}u', True)
     commands.run('yay -Sua', True)
     commands.run('sudo paccache -ruk0', True)
