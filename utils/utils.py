@@ -6,12 +6,12 @@ from datetime import datetime
 from datetime import timedelta
 import re
 import json
-import requests
 
 from utils import colors
 from utils import prints
 from utils import paths
 from utils import commands
+from utils import requestss
 
 
 
@@ -42,10 +42,10 @@ def _retrieve_arch_mirrors(configs):
     '''
     mirror_url_list = []
     for country in configs.country_list:
-        response = requests.get(f"https://archlinux.org/mirrorlist/?country={country}&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on", timeout=60)
+        response = requestss.get(f"https://archlinux.org/mirrorlist/?country={country}&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on")
         mirror_url_list += [server_str.split(' = ')[1] for server_str in response.text.split('\n') if 'Server = ' in server_str]
 
-    response = requests.get('https://archlinux.org/mirrors/status/json', timeout=60)
+    response = requestss.get('https://archlinux.org/mirrors/status/json')
     response_dict = response.json()
     last_check_datetime = datetime.fromisoformat(response_dict['last_check'])
 
