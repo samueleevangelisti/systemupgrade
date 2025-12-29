@@ -40,10 +40,12 @@ def _request(method, url, headers, json):
             response = requests.get(url, headers=headers, json=json, timeout=configs.TIMEOUT)
         case 'DELETE':
             response = requests.get(url, headers=headers, json=json, timeout=configs.TIMEOUT)
+        case _:
+            pass
     if response.status_code != 200:
         logs.request_error(f'response.status_code: {response.status_code}, response.text: {response.text}')
     else:
-        logs.request_error(f'response.status_code: {response.status_code}, response.text: {response.text}')
+        logs.request_success(f'response.status_code: {response.status_code}, response.text: {response.text}')
     return response
 
 

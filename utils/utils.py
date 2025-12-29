@@ -41,9 +41,21 @@ def _retrieve_arch_mirrors(configs):
         configs
     '''
     mirror_url_list = []
+    error_country_list = []
     for country in configs.country_list:
-        response = requestss.get(f"https://archlinux.org/mirrorlist/?country={country}&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on")
-        mirror_url_list += [server_str.split(' = ')[1] for server_str in response.text.split('\n') if 'Server = ' in server_str]
+        try:
+            response = requestss.get(f"https://archlinux.org/mirrorlist/?country={country}&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on")
+            mirror_url_list += [server_str.split(' = ')[1] for server_str in response.text.split('\n') if 'Server = ' in server_str]
+        except Exception:
+            error_country_list.append(country)
+
+    if not mirror_url_list:
+        prints.red(' ✗ No mirror url list')
+        sys.exit(1)
+    if error_country_list:
+        prints.yellow(' ✗ Missing mirrors for some countries')
+        for error_country in error_country_list:
+            prints.yellow(f'   {error_country}')
 
     response = requestss.get('https://archlinux.org/mirrors/status/json')
     response_dict = response.json()
